@@ -2,15 +2,16 @@
 // Database Import Script for Railway Deployment
 // This script imports the database schema and sample data
 
-// Get environment variables
-$dbHost = getenv('MYSQLHOST') ?: getenv('DB_HOST');
-$dbUser = getenv('MYSQLUSER') ?: getenv('DB_USER');
-$dbPass = getenv('MYSQLPASSWORD') ?: getenv('DB_PASS');
-$dbName = getenv('MYSQLDATABASE') ?: getenv('DB_NAME');
+// Get environment variables - try multiple possible names
+$dbHost = getenv('MYSQLHOST') ?: getenv('MYSQL_HOST') ?: getenv('DB_HOST') ?: 'localhost';
+$dbUser = getenv('MYSQLUSER') ?: getenv('MYSQL_USER') ?: getenv('DB_USER') ?: 'root';
+$dbPass = getenv('MYSQLPASSWORD') ?: getenv('MYSQL_PASSWORD') ?: getenv('DB_PASS') ?: '';
+$dbName = getenv('MYSQLDATABASE') ?: getenv('MYSQL_DATABASE') ?: getenv('DB_NAME') ?: 'railway';
 
 echo "Starting database import...\n";
 echo "Connecting to: $dbHost\n";
-echo "Database: $dbName\n";
+echo "Database name: '$dbName'\n";
+echo "User: $dbUser\n";
 
 try {
     $conn = new mysqli($dbHost, $dbUser, $dbPass);
@@ -22,7 +23,12 @@ try {
     echo "✓ Database connection successful\n";
     
     // Select the database
-    if (!$conn->select_db($dbName)) {
+    if (empty($dbName)) {
+        throw new Exception("Database name is empty");
+    }
+    
+    $selectResult = $conn->select_db($dbName);
+    if (!$selectResult) {
         throw new Exception("Failed to select database '$dbName': " . $conn->error);
     }
     
