@@ -13,13 +13,20 @@ echo "Connecting to: $dbHost\n";
 echo "Database: $dbName\n";
 
 try {
-    $conn = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
+    $conn = new mysqli($dbHost, $dbUser, $dbPass);
     
     if ($conn->connect_error) {
         throw new Exception("Connection failed: " . $conn->connect_error);
     }
     
     echo "✓ Database connection successful\n";
+    
+    // Select the database
+    if (!$conn->select_db($dbName)) {
+        throw new Exception("Failed to select database '$dbName': " . $conn->error);
+    }
+    
+    echo "✓ Database '$dbName' selected\n";
     
     // Read and execute hotel_booking.sql
     echo "\nImporting hotel_booking.sql...\n";
