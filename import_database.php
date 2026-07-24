@@ -2,13 +2,22 @@
 // Database Import Script for Railway Deployment
 // This script imports the database schema and sample data
 
-require_once __DIR__ . '/includes/Database.php';
+// Get environment variables
+$dbHost = getenv('MYSQLHOST') ?: getenv('DB_HOST');
+$dbUser = getenv('MYSQLUSER') ?: getenv('DB_USER');
+$dbPass = getenv('MYSQLPASSWORD') ?: getenv('DB_PASS');
+$dbName = getenv('MYSQLDATABASE') ?: getenv('DB_NAME');
 
 echo "Starting database import...\n";
+echo "Connecting to: $dbHost\n";
+echo "Database: $dbName\n";
 
 try {
-    $db = Database::getInstance();
-    $conn = $db->getConnection();
+    $conn = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
+    
+    if ($conn->connect_error) {
+        throw new Exception("Connection failed: " . $conn->connect_error);
+    }
     
     echo "✓ Database connection successful\n";
     
